@@ -1,0 +1,143 @@
+//rns¤δðàÅ$Ïtext¤α¦¾塩º¸²¼¡©Ã濴Å!©
+
+var fill = d3.scale.category10();
+
+var w = $('#display-wrapper-tag').width(), 
+    h = 600;
+
+var focusedTable,
+    areaClassObj,
+    tagTables = {},
+    fontSize = d3.scale.log().range([20, 60]),
+    maxLength = 30;
+var layout = d3.layout.cloud()
+    .timeInterval(100)
+    .rotate(function(){return 0;/* make tags rotation*/})
+    .size([w, h])
+    .fontSize(function(d) { return fontSize(d.count); })
+    .font(function(){
+	    return "fantasy"
+	})
+    .text(function(d) {return d.tag; })
+    .on("end",  draw);
+var margin = {top: 35, right: 8, bottom: 75, left: 90},
+    widthh = w * 5 / 12 - margin.left - margin.right,
+    heightt = window.innerHeight / 2 - margin.top - margin.bottom;
+var x = d3.scale.linear()
+    .range([0, widthh]);
+var y = d3.scale.linear()
+    .range([heightt, 0]);
+var svg = d3.select("#vis").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+var pathth = svg.append("path");
+var background = svg.append("g");
+var vis = svg.append("g")
+    .attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
+
+var scale = 1;
+//    statusText = d3.select("#status");
+var directry = 'data/pen30/';
+var box = [];
+
+// for experiment
+var myFirebaseRef = new Firebase("https://nodevis-experiment.firebaseio.com/"),
+    now;
+
+function correct(d){
+    console.log(d);
+    now = new Date();
+    myFirebaseRef.push({
+	    //    author: "Firebase",
+	    task : "2",
+		result: "Correct",
+		answer: d,
+		time: parseInt((now.getTime() - start.getTime()) / 1000)
+		});
+    alert("5²òǤ¹¡£¤³¤Υ¦¥£¥óɥ¦¤òÊĤ¸¤Ƽ¡¤Υ¿¥¹¥¯¤òԤäƤ¯¤$µ¤¤¡£");
+}
+function incorrect(d){
+    now = new Date();
+    myFirebaseRef.push({
+            //      author: "Firebase",
+	    task : "2",
+		result: "Incorrect",
+		answer: d,
+		time: parseInt((now.getTime() - start.getTime()) / 1000)
+		});
+    alert("ÉÔ5²òǤ¹¡£¤³¤Υ¦¥£¥óɥ¦¤òÊĤ¸¤Ƽ¡¤Υ¿¥¹¥¯¤òԤäƤ¯¤$µ¤¤¡£");
+}
+
+
+var weight;
+var sent,befoword;
+d3.csv( directry + 'word-sentence.csv', function(dd) {
+	weight = dd;
+    });
+
+function draw(data, bounds) {
+    scale = bounds ? Math.min(
+			      w / Math.abs(bounds[1].x - w / 2),
+			      w / Math.abs(bounds[0].x - w / 2),
+			      h / Math.abs(bounds[1].y - h / 2),
+			      h / Math.abs(bounds[0].y - h / 2)
+			      ) / 2 : 1;
+    var text = vis.selectAll("text")
+	.data(data, function(d) {
+		return d.text; 
+	    });
+    text.enter().append("text")
+	.attr("text-anchor", "middle")
+	.attr("id", function(d){ return d.tag })
+	.attr("name", function(d){ return d.tag })
+	.attr("tag", function(d){ return d.tag })
+	.attr("sentence",function(d){ return tagbox[d.tag].sentence /*["sentence"]*/ })
+	.attr("transform", function(d) { return "translate(" + [tagbox[d.tag]["x"], tagbox[d.tag]["y"]] + ")"; })
+	//.attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+	.style({"font-size": function(d) { return d.size + "px"; }})
+	.style("cursor", "hand")
+	.text(function(d) { return d.name; })
+	.on("click", function(d){
+		if (befoword != undefined){
+		    tagbox[befoword.tag]["sentence"].forEach(function(dd){
+			    $("rect#" + dd).d3Click();
+			});
+		}
+		befoword = d;
+		svg.selectAll("text")
+		    .style({"fill": "black" /*"#95a5a6"*/, "opacity": 0.2});
+		d3.select(this)
+		    .style({"fill": "purple", "opacity": 1});
+                tagbox[d.tag]["sentence"].forEach(function(dd){
+			$("rect#" + dd).d3Click();
+		    });
+	    }
+	    )
+	.on("click.2", arrow)
+	.on("mouseover", function(d){
+		tagbox[d.tag]["sentence"].forEach(function(dd){
+			d3.select("text#" + dd)
+			    .style({"fill": "#e74c3c", "font-weight":"bold"});
+		    });
+	    }
+	    )
+	.on("mouseout", function(d){
+                tagbox[d.tag]["sentence"].forEach(function(dd){
+                        d3.select("text#" + dd)
+                            .style({"fill": "black", "font-weight":"normal"});
+                    });
+	    }
+	    )
+	.on("mouseover.3", function(d){
+		d3.select(this)
+		    .style({"font-family": "serif"})
+		    }
+	    )
+	.on("mouseout.3", function(d){
+		d3.select(this)
+		    .style({ "font-family": "fantsy"})
+		    }
+	    );
+    
+    text.style("fill", function(d) { return fill( tagbox[d.tag]["cluster"]); } )
+	.style("fon  ¤Æpat    btion(j)                   
