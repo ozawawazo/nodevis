@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>評価構造 ペン</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap-dropdown.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <link href="bower_components/multiselect/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h4 style=" margin-top: 20px; margin-left: 30px;">問1 : 以下の4択から評価構造内で一番多く出現する単語を選びなさい</h4>
+<ul class="list-inline">
+  <li><button type="submit" class="btn pull-left" onclick="incorrect('グリップw'); return false;" style="margin-right: 10px; margin-left: 40px; margin-top: 5px; margin-bottom: 5px;"> グリップ </button></li>
+  <li><button type="submit" class="btn pull-left" onclick="incorrect('書くw'); return false;" style="margin-right: 10px; margin-left: 10px; margin-top: 5px; margin-bottom: 5px;"> 書く </button></li>
+  <li><button type="submit" class="btn pull-left" onclick="correct('芯w'); return false;" style="margin-right: 10px; margin-left: 10px; margin-top: 5px; margin-bottom: 5px;"> 芯 </button></li>
+  <li><button type="submit" class="btn pull-left" onclick="incorrect('字w'); return false;" style="margin-right: 10px; margin-left: 10px; margin-top: 5px; margin-bottom: 5px;"> 字 </button></li>
+</ul>
+<div class="container-fluid">
+  <div class="row">
+<!--
+    <div class="col-sm-6">
+      <div class="container-fluid">
+	<div class="row">
+	  <div class="col-sm-12">
+	    <div class="panel panel-primary kanban-col">
+	      <div class="panel-heading">
+		<strong>Evaluation Structure</strong>
+	      </div>
+	      <div id="display-wrapper">
+		<svg id="display"></svg>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+-->
+    <div class="col-sm-12">
+      <div class="container-fluid">
+	<div class="row">
+	  <div class="col-sm-2">
+	  </div>
+	  <div class="col-sm-8">
+	    <div class="panel panel-primary kanban-col">
+              <div class="panel-heading">
+                <strong>Word Cloud</strong>
+	      </div>
+	      <ul class="nav nav-pills">
+	      </ul>
+	      <div id="display-wrapper-tag">
+		<div id="inbody">
+		  <div id="vis"></div>
+		</div>
+              </div>
+ 	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="bower_components/multiselect/js/jquery.multi-select.js"></script>
+<script src="bower_components/d3/d3.min.js"></script>
+<script src="bower_components/egrid-core/dist/dagre.js"></script>
+<script src="bower_components/egrid-core/dist/egrid-core.js"></script>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="tacs/d3.layout.cloud.js"></script>
+<script src="tacs/experiment30w.js"></script>
+</body>
+</html>
