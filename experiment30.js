@@ -514,32 +514,23 @@ function fta(){
                 }
             }
         });
-    order.forEach(function(d){
+        
 
-  		var dx = box[d].x0,//文字の中心のx座標
-	  	dx1 = box[d].x0 - box[d].w/2,
-		  dy =  box[d].y0,//文字の中心のy座標
-		  dy1 = box[d].y0 - box[d].h*0.8;
-	    //Find NS
-	    var ns = [];
-	    order.forEach(function(dd){
-		    //Main NS
-			var ddx = box[dd].x0,
-			ddy = box[dd].y0 - box[dd].h*0.4 ;
-		    if(d != dd && Math.abs(dx - ddx) < ( box[d].w + box[dd].w ) * 0.45 && Math.abs(dy - ddy) < (box[d].h + box[dd].h) * 0.45){
-			ns.push(dd);
+    order.forEach(function(dd){
+	    //NS
+		  var ddx = box[dd].x0,
+		  ddy = box[dd].y0 - box[dd].h*0.4 ;
+	    box[dd].ns = []; 
+	    order.forEach(function(ddd){
+			  var dddx = box[ddd].x0,
+		  	dddy = box[ddd].y0 - box[ddd].h*0.4 ;
+		    if(dd != ddd && Math.abs(ddx - dddx) < ( box[dd].w + box[ddd].w ) * 0.45 && Math.abs(ddy - dddy) < (box[dd].h + box[ddd].h) * 0.45){
+		  	  box[dd].ns.push(ddd);
 		    }
-		    //Sub NS
-		    box[dd].ns = []; 
-		    order.forEach(function(ddd){
-				var dddx = box[ddd].x0,
-				dddy = box[ddd].y0 - box[ddd].h*0.4 ;
-			    if(dd != ddd && Math.abs(ddx - dddx) < ( box[dd].w + box[ddd].w ) * 0.45 && Math.abs(ddy - dddy) < (box[dd].h + box[ddd].h) * 0.45){
-				box[dd].ns.push(ddd);
-			    }
-			});
-		});
-
+	  	});
+	  });  
+        
+    order.forEach(function(d){
             //Find RNS,LNS,UNS,DNS
       var rns = [], lns = [], uns = [], dns = [];
 	    order.forEach(function(dd){
@@ -550,12 +541,12 @@ function fta(){
 	  	  box[dd].uns = [], 
 	  	  box[dd].dns = [];
 		    box[dd].ns.forEach(function(ddd){
-				var dddx1 = box[ddd].x0 - box[ddd].w/2,
-				dddy1 = box[ddd].y0 - box[ddd].h*0.8 ;
+			  	var dddx1 = box[ddd].x0 - box[ddd].w/2,
+				  dddy1 = box[ddd].y0 - box[ddd].h*0.8 ;
 			    if(ddx1 < dddx1){
-				box[dd].rns.push(ddd);
+			    	box[dd].rns.push(ddd);
 			    }else if(ddx1 > dddx1){
-				box[dd].lns.push(ddd);
+				    box[dd].lns.push(ddd);
 			    }else{
 				if(box[dd].num > box[ddd].num){
 				    box[dd].rns.push(ddd);
