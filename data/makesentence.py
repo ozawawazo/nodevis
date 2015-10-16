@@ -4,7 +4,7 @@ import json
 import csv
 import codecs
 
-directory = 'des45/'
+directory = 'change/'
 
 f = open( directory + "data.json", "r")
 fout = codecs.open( directory + "egm_sentence.txt", "w", "utf-8")

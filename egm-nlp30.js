@@ -4,7 +4,7 @@ var morph;
 var simil;
 var node;
 
-$('#my-select').multiSelect()
+//$('#my-select').multiSelect()
 
 $(function() {
   var egm = egrid.core.egm()
@@ -39,7 +39,6 @@ $(function() {
     .on('submit', function() {
       var word = d3.select('#search-word').node().value;
       var url = 'data/sample.json?word=' + word;
-
       d3.csv("writetext.php?word=" + word, function(data) {
 	      simil = data;
 	      //	      console.log(simil);

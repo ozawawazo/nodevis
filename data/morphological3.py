@@ -7,7 +7,7 @@ import sys
 import MeCab
 import csv
 import json
-directory = 'car/'
+directory = 'change/'
 
 
 def extractKeyword(text):

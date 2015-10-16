@@ -6,7 +6,7 @@ from numpy  import *
 
 #this pyfile make 1"sentence-sentence matrix csv file" 2"make word-word MDSfile"
 
-directory = 'des45/'
+directory = 'change/'
 File = 'WBU.txt'
 
 f = open( directory + 'data.json', 'r')

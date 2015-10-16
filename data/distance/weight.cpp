@@ -1,0 +1,106 @@
+//このファイルは重み計算用
+#include <stdlib.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <string.h>
+#include <vector>
+  
+#define DIRECTORY "../change/"
+
+class WORD{
+private:
+  std::string word;
+  std::vector<int> line;
+public:
+  WORD(std::string moji,int gyou);
+  ~WORD();
+  void into_line(int num){line.push_back(num);}
+  bool compare(std::string retsu){return (word==retsu);}
+  std::string rtn_word(){return word;}
+  int rtn_line(int i){return line[i];}
+  int size_line(){return line.size();}
+};
+
+WORD::WORD(std::string moji,int gyou){  
+  word.append(moji);
+  line.push_back(gyou);
+}
+
+WORD::~WORD(){}
+
+int main(){
+  using std::cout;
+  using std::endl;
+  using std::ifstream;
+  using std::string;
+  using std::istringstream;
+  
+  char buf[256]=DIRECTORY;
+  strcat(buf, "mor-node_words.csv");
+
+  ifstream ifs(buf); //読み込みファイル名
+  if(!ifs){
+    cout<<"Error:Input data file not found"<<endl; return -1;
+  }
+
+  std::vector<WORD> word;
+  bool flag;
+  
+  string str;
+  int k=0;
+  while(getline(ifs,str)){
+    string tmp;
+    istringstream stream(str);
+    int m=0;
+
+    while(getline(stream,tmp,',')){
+      flag=false;
+      if(m!=0){
+	if(word.empty()){
+	  word.push_back(WORD(tmp,0));
+	}
+	else{
+	  int i;
+	  for(i=0;i<word.size();i++){	    
+	    if(word[i].compare(tmp)){
+	      word[i].into_line(k);
+	      flag=true;
+	      break;
+	    }
+	  }
+	  if(!flag){
+	    word.push_back(WORD(tmp,k));
+	  }
+	}
+      }
+      m++;
+    }
+    k++;
+  }
+
+  int mat[word.size()][k];
+  for(int m=0;m<word.size();m++){
+    for(int n=0;n<k;n++){
+      mat[m][n]=0;
+    }
+  }
+
+  for(int m=0;m<word.size();m++){
+    for(int n=0;n<word[m].size_line();n++){
+      mat[m][word[m].rtn_line(n)]=1;
+    }
+  }
+  
+  std::ofstream ofs("weight.csv"); //出力ファイル
+  for(int m=0;m<word.size();m++){
+    for(int n=0;n<k;n++){
+      ofs<<mat[m][n];
+      if(n<k-1) ofs<<", ";
+    }
+    ofs<<endl;
+  }
+  
+  return 0;
+}
