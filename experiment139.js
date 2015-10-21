@@ -3,12 +3,12 @@
 var fill = d3.scale.category10();
 
 var w = $('#display-wrapper-tag').width(), 
-    h = 600;
+    h = 600*3;
 
 var focusedTable,
     areaClassObj,
     tagTables = {},
-    fontSize = d3.scale.log().range([20, 60]),
+    fontSize = d3.scale.log().range([8, 40]),
     maxLength = 30;
 var layout = d3.layout.cloud()
     .timeInterval(100)
@@ -149,13 +149,13 @@ function draw(data, bounds) {
     var exitGroup = background.append("g")
 	.attr("transform", vis.attr("transform"));
     vis.transition()
-	.delay(500)
+	.delay(250)
 	//       .duration(750)
 	//       .attr("transform", "translate(" + [w >> 1, h >> 1] + ")scale(" + scale + ")");
 	.attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
     //    $(multilist());
     start = new Date();
-    fta();        fta();   fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta();
+    fta();   fta();   fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta(); fta();
     console.log(new Date() - start);
 }
 
@@ -482,6 +482,23 @@ d3.csv( directry + 'unidic.csv', function(d) {
     }
 );
 
+function space(){
+    namebox.forEach(function(d, i){
+            var doc, transx, transy;
+            if(document.getElementsByName(d[0][0])[0].transform.baseVal.length != 0){
+                doc = document.getElementsByName(d[0][0])[0].getBBox();
+                transx = document.getElementsByName(d[0][0])[0].transform.baseVal[0].matrix.e;
+                transy = document.getElementsByName(d[0][0])[0].transform.baseVal[0].matrix.f;
+                box[d[0][0]] = {'name': d[0][0], 'num': i,'w':doc.width, 'h':doc.height,'x0':transx, 'y0':transy - doc.height*0.4, 'x1':transx - doc.width/2, 'y1':transy - doc.height*0.8, 'x2':transx + doc.width/2, 
+				'y2':transy, 'ns':[], 'rns':[], 'lns':[], 'uns':[], 'dns':[]};
+            }
+        });
+
+
+ 
+}
+
+
 function fta(){
     namebox.forEach(function(d, i){ 
        	    var doc, transx, transy;  
@@ -534,181 +551,187 @@ function fta(){
     order.forEach(function(d){
             //Find RNS,LNS,UNS,DNS
       var rns = [], lns = [], uns = [], dns = [];
-	    order.forEach(function(dd){
-			  var ddx1 = box[dd].x0 - box[dd].w/2,
-			  ddy1 = box[dd].y0 - box[dd].h*0.8;
+      order.forEach(function(dd){
+	      var ddx1 = box[dd].x0 - box[dd].w/2,
+		  ddy1 = box[dd].y0 - box[dd].h*0.8;
 	      box[dd].rns = [], 
 	  	  box[dd].lns = [], 
 	  	  box[dd].uns = [], 
 	  	  box[dd].dns = [];
-		    box[dd].ns.forEach(function(ddd){
-			  	var dddx1 = box[ddd].x0 - box[ddd].w/2,
-				  dddy1 = box[ddd].y0 - box[ddd].h*0.8 ;
-			    if(ddx1 < dddx1){
-			    	box[dd].rns.push(ddd);
-			    }else if(ddx1 > dddx1){
-				    box[dd].lns.push(ddd);
-			    }else{
-				if(box[dd].num > box[ddd].num){
-				    box[dd].rns.push(ddd);
-				}else{
-				    box[dd].lns.push(ddd);
-				}
-			    }
-			    if(ddy1 < dddy1){
-				box[dd].dns.push(ddd);
+	      box[dd].ns.forEach(function(ddd){
+		      var dddx1 = box[ddd].x0 - box[ddd].w/2,
+			  dddy1 = box[ddd].y0 - box[ddd].h*0.8 ;
+		      if(ddx1 < dddx1){
+			  box[dd].rns.push(ddd);
+		      }else if(ddx1 > dddx1){
+			  box[dd].lns.push(ddd);
+		      }else{
+			  if(box[dd].num > box[ddd].num){
+			      box[dd].rns.push(ddd);
+			  }else{
+			      box[dd].lns.push(ddd);
+			  }
+		      }
+		      if(ddy1 < dddy1){
+			  box[dd].dns.push(ddd);
 			    }else if(ddy1 > dddy1){
-				box[dd].uns.push(ddd);
-			    }else{
-				if(box[dd].num > box[ddd].num){
-				    box[dd].dns.push(ddd);
-				}else{
-				    box[dd].uns.push(ddd);
-				}
-			    }
-			});
-		});
-	    //Find TNS
-	    var count = [];
-	    function rtns(dd) {
-		count.push(box[dd].name);
-                if (box[dd].rtns !== undefined) {
-                    return box[dd].rtns;
-                }
-                return box[dd].rtns = Array.prototype.concat.apply(box[dd].rns, box[dd].rns.map(function(j) { //map:与えられた関数を配列のすべての要素に対して呼び出し、その結果からなる新しい配列を生成
-                            if(count.indexOf(j) == -1){ //indexof:オブジェクト内に引数が見つからなかった場合 -1
-                                return rtns(j);
-                            }
-                        }));
-            }
-            count = [];
-            rtns(d);
-            box[d].rtns = d3.set(box[d].rtns).values();
-            box[d].rtns.some(function(v, i){
-                    if (v=="undefined") box[d].rtns.splice(i,1);
-                });
-            function ltns(dd) {
-                count.push(box[dd].name);
-                if (box[dd].ltns !== undefined) {
-                    return box[dd].ltns;
-                }
-                return box[dd].ltns = Array.prototype.concat.apply(box[dd].lns, box[dd].lns.map(function(j) {
-                            if(count.indexOf(j) == -1){
-                                return ltns(j);
-                            }
-                        }));
-            }
-	    count = [];
-            ltns(d);
-            box[d].ltns = d3.set(box[d].ltns).values();
-            box[d].ltns.some(function(v, i){
-                    if (v=="undefined") box[d].ltns.splice(i,1);
-                });
-
-            function utns(dd) {
-                count.push(box[dd].name);
-                if (box[dd].utns !== undefined) {
+			  box[dd].uns.push(ddd);
+		      }else{
+			  if(box[dd].num > box[ddd].num){
+			      box[dd].dns.push(ddd);
+			  }else{
+			      box[dd].uns.push(ddd);
+			  }
+		      }
+		  });
+	  });
+      //Find TNS
+      var count = [];
+      function rtns(dd) {
+	  count.push(box[dd].name);
+	  if (box[dd].rtns !== undefined) {
+	      return box[dd].rtns;
+	  }
+	  return box[dd].rtns = Array.prototype.concat.apply(box[dd].rns, box[dd].rns.map(function(j) { //map:与えられた関数を配列のすべての要素に対して呼び出し、その結果からなる新しい配列を生成
+		      if(count.indexOf(j) == -1){ //indexof:オブジェクト内に引数が見つからなかった場合 -1
+			  return rtns(j);
+		      }
+		  }));
+      }
+      count = [];
+      rtns(d);
+      box[d].rtns = d3.set(box[d].rtns).values();
+      box[d].rtns.some(function(v, i){
+	      if (v=="undefined") box[d].rtns.splice(i,1);
+	  });
+      function ltns(dd) {
+	  count.push(box[dd].name);
+	  if (box[dd].ltns !== undefined) {
+	      return box[dd].ltns;
+	  }
+	  return box[dd].ltns = Array.prototype.concat.apply(box[dd].lns, box[dd].lns.map(function(j) {
+		      if(count.indexOf(j) == -1){
+			  return ltns(j);
+		      }
+		  }));
+      }
+      count = [];
+      ltns(d);
+      box[d].ltns = d3.set(box[d].ltns).values();
+      box[d].ltns.some(function(v, i){
+	      if (v=="undefined") box[d].ltns.splice(i,1);
+	  });
+      
+      function utns(dd) {
+	  count.push(box[dd].name);
+	  if (box[dd].utns !== undefined) {
                     return box[dd].utns;
-                }
-                return box[dd].utns = Array.prototype.concat.apply(box[dd].uns, box[dd].uns.map(function(j) {
-                            if(count.indexOf(j) == -1){
-                                return utns(j);
-                            }
-                        }));
-            }
-            count = [];
-            utns(d);
-            box[d].utns = d3.set(box[d].utns).values();
-            box[d].utns.some(function(v, i){
-                    if (v=="undefined") box[d].utns.splice(i,1);
-                });
+	  }
+	  return box[dd].utns = Array.prototype.concat.apply(box[dd].uns, box[dd].uns.map(function(j) {
+		      if(count.indexOf(j) == -1){
+			  return utns(j);
+		      }
+		  }));
+      }
+      count = [];
+      utns(d);
+      box[d].utns = d3.set(box[d].utns).values();
+      box[d].utns.some(function(v, i){
+	      if (v=="undefined") box[d].utns.splice(i,1);
+	  });
+      
+      function dtns(dd) {
+	  count.push(box[dd].name);
+	  if (box[dd].dtns !== undefined) {
+	      return box[dd].dtns;
+	  }
+	  return box[dd].dtns = Array.prototype.concat.apply(box[dd].dns, box[dd].dns.map(function(j) {
+		      if(count.indexOf(j) == -1){
+			  return dtns(j);
+		      }
+		  }));
+      }
+      count = [];
+      dtns(d);
+      box[d].dtns = d3.set(box[d].dtns).values();
+      box[d].dtns.some(function(v, i){
+	      if (v=="undefined") box[d].dtns.splice(i,1);
+	  });
+      //transfer
+      //right
+      if(box[d].rns.length != 0){
+	  box[d].rns.sort(function(a,b){
+		  return box[a].x0 - box[b].x0
+		      });
+	  var forceh = ( box[box[d].rns[0]].w + box[d].w )/2 - Math.abs( box[box[d].rns[0]].x0 - box[d].x0 ),
+	      forcev = ( box[box[d].rns[0]].h + box[d].h )/2 - Math.abs( box[box[d].rns[0]].y0 - box[d].y0 );
+	  if( forceh / (box[box[d].rns[0]].w + box[d].w) <= forcev / (box[box[d].rns[0]].h + box[d].h) ){
+	      //	  if( forceh <= forcev * 1.8 ){
+	      var forcex, forcey;
+	      Object.keys(box[d].rtns).forEach(function(dd,i){
+		      forcex = vis.select("text#" + box[d].rtns[dd])[0][0].transform.animVal[0].matrix.e + forceh;
+		      forcey = vis.select("text#" + box[d].rtns[dd])[0][0].transform.animVal[0].matrix.f;
+		      vis.select("text#" + box[d].rtns[dd])
+			  .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
+		  });
+	  }
+      }
+      //left
+      if(box[d].lns.length != 0){
+	  box[d].lns.sort(function(a,b){
+		  return box[a].x0 - box[b].x0
+		      });
+	  var forceh = ( box[box[d].lns[0]].w + box[d].w )/2 - Math.abs( box[box[d].lns[0]].x0 - box[d].x0 ),
+	      forcev = ( box[box[d].lns[0]].h + box[d].h )/2 - Math.abs( box[box[d].lns[0]].y0 - box[d].y0 );
+	  if( forceh / (box[box[d].lns[0]].w + box[d].w) <= forcev / (box[box[d].lns[0]].h + box[d].h) ){
+	      //          if( forceh <= forcev * 1.8 ){
+	      var forcex, forcey;
+	      Object.keys(box[d].ltns).forEach(function(dd,i){
+		      forcex = vis.select("text#" + box[d].ltns[dd])[0][0].transform.animVal[0].matrix.e - forceh;
+		      forcey = vis.select("text#" + box[d].ltns[dd])[0][0].transform.animVal[0].matrix.f;
+		      vis.select("text#" + box[d].ltns[dd])
+			  .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
+		  });
+	  }
+      }
+      //up
+       if(box[d].uns.length != 0){
+	  box[d].uns.sort(function(a,b){
+		  return box[a].y0 - box[b].y0
+		      });
+	  var forcev = ( box[box[d].uns[0]].h + box[d].h )/2 - Math.abs( box[box[d].uns[0]].y0 - box[d].y0 ),
+	      forceh = ( box[box[d].uns[0]].w + box[d].w )/2 - Math.abs( box[box[d].uns[0]].x0 - box[d].x0 );
+	  if( forcev / (box[box[d].uns[0]].h + box[d].h) < forceh / (box[box[d].uns[0]].w + box[d].w) ){
+	      //          if( forceh > forcev * 1.8 ){
+	      var forcex, forcey;
+	      Object.keys(box[d].utns).forEach(function(dd,i){
+		      forcex = vis.select("text#" + box[d].utns[dd])[0][0].transform.animVal[0].matrix.e;
+		      forcey = vis.select("text#" + box[d].utns[dd])[0][0].transform.animVal[0].matrix.f - forcev;
+		      vis.select("text#" + box[d].utns[dd])
+			  .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
+		  });
+	  }
+      }
 
-            function dtns(dd) {
-                count.push(box[dd].name);
-                if (box[dd].dtns !== undefined) {
-                    return box[dd].dtns;
-                }
-                return box[dd].dtns = Array.prototype.concat.apply(box[dd].dns, box[dd].dns.map(function(j) {
-                            if(count.indexOf(j) == -1){
-                                return dtns(j);
-                            }
-                        }));
-            }
-            count = [];
-            dtns(d);
-            box[d].dtns = d3.set(box[d].dtns).values();
-            box[d].dtns.some(function(v, i){
-                    if (v=="undefined") box[d].dtns.splice(i,1);
-                });
-
-	    //Force transfer
-	    if(box[d].rns.length != 0){
-                box[d].rns.sort(function(a,b){
-                        return box[a].x0 - box[b].x0
-		});
-                var force = ( box[box[d].rns[0]].w + box[d].w )/2 - Math.abs( box[box[d].rns[0]].x0 - box[d].x0 );
-                if( force <= (( box[box[d].rns[0]].h + box[d].h )/2 - Math.abs( box[box[d].rns[0]].y0 - box[d].y0 ))*1.2 ){
-                    var forcex, forcey;
-                    Object.keys(box[d].rtns).forEach(function(dd,i){
-                            forcex = vis.select("text#" + box[d].rtns[dd])[0][0].transform.animVal[0].matrix.e + force;
-                            forcey = vis.select("text#" + box[d].rtns[dd])[0][0].transform.animVal[0].matrix.f;
-                            vis.select("text#" + box[d].rtns[dd])
-				.attr("transform", "translate("+ forcex + " , " + forcey  + ")");
-                        });
-                }
-            }
-	    //left
-            if(box[d].lns.length != 0){
-                box[d].lns.sort(function(a,b){
-                        return box[a].x0 - box[b].x0
-			    });
-                var force = ( box[box[d].lns[0]].w + box[d].w )/2 - Math.abs( box[box[d].lns[0]].x0 - box[d].x0 );
-                if( force <= (( box[box[d].lns[0]].h + box[d].h )/2 - Math.abs( box[box[d].lns[0]].y0 - box[d].y0 ))*1.2 ){
-                    var forcex, forcey;
-                    Object.keys(box[d].ltns).forEach(function(dd,i){
-                            forcex = vis.select("text#" + box[d].ltns[dd])[0][0].transform.animVal[0].matrix.e - force;
-                            forcey = vis.select("text#" + box[d].ltns[dd])[0][0].transform.animVal[0].matrix.f;
-                            vis.select("text#" + box[d].ltns[dd])
-                                .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
-                        });
-                }
-            }
-	    //up
-	    //	    console.log(box[d]);
-            if(box[d].uns.length != 0){
-		box[d].uns.sort(function(a,b){
-			return box[a].y0 - box[b].y0
-			    });
-		var force = ( box[box[d].uns[0]].h + box[d].h )/2 - Math.abs( box[box[d].uns[0]].y0 - box[d].y0 );
-		if( force*1.2 <= ( box[box[d].uns[0]].w + box[d].w )/2 - Math.abs( box[box[d].uns[0]].x0 - box[d].x0 ) ){
-		    var forcex, forcey;
-		    Object.keys(box[d].utns).forEach(function(dd,i){
-			    forcex = vis.select("text#" + box[d].utns[dd])[0][0].transform.animVal[0].matrix.e;
-			    forcey = vis.select("text#" + box[d].utns[dd])[0][0].transform.animVal[0].matrix.f - force;
-			    vis.select("text#" + box[d].utns[dd])
-				.attr("transform", "translate("+ forcex + " , " + forcey  + ")");
-			});
-		}
-            }
-	    /*
-            //Down
-            if(box[d].dns.length != 0){
-		console.log(box[d]);
-		box[d].dns.sort(function(a,b){
-			return box[a].y0 - box[b].y0
-			    });
-		var force = ( box[box[d].dns[0]].h + box[d].h )/2 - Math.abs( box[box[d].dns[0]].y0 - box[d].y0 );
-		if( force*1.2 <= ( box[box[d].dns[0]].w + box[d].w )/2 - Math.abs( box[box[d].dns[0]].x0 - box[d].x0 ) ){
-		    var forcex, forcey;
-		    Object.keys(box[d].dns).forEach(function(dd,i){
-			    forcex = vis.select("text#" + box[d].dtns[dd])[0][0].transform.animVal[0].matrix.e;
-			    forcey = vis.select("text#" + box[d].dtns[dd])[0][0].transform.animVal[0].matrix.f + force;
-			    vis.select("text#" + box[d].dtns[dd])
-                                .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
-			});
-		}
-	    }
-	    */
+      //Down
+       if(box[d].dns.length != 0){
+	   box[d].dns.sort(function(a,b){
+		   return box[a].y0 - box[b].y0
+		       });
+	   var forcev = ( box[box[d].dns[0]].h + box[d].h )/2 - Math.abs( box[box[d].dns[0]].y0 - box[d].y0 ),
+	       forceh = ( box[box[d].dns[0]].w + box[d].w )/2 - Math.abs( box[box[d].dns[0]].x0 - box[d].x0 );
+	   if( forcev / (box[box[d].dns[0]].h + box[d].h) < forceh / (box[box[d].dns[0]].w + box[d].w) ){
+	       //	   if( forcev * 1.8 < forceh ){
+	       var forcex, forcey;
+	       Object.keys(box[d].dns).forEach(function(dd,i){
+		       forcex = vis.select("text#" + box[d].dtns[dd])[0][0].transform.animVal[0].matrix.e;
+		       forcey = vis.select("text#" + box[d].dtns[dd])[0][0].transform.animVal[0].matrix.f + forcev;
+		       vis.select("text#" + box[d].dtns[dd])
+			   .attr("transform", "translate("+ forcex + " , " + forcey  + ")");
+		   });
+	   }
+       }
+       //      */
 	});
 }
 

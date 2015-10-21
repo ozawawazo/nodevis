@@ -34,7 +34,6 @@ var pathth = svg.append("path");
 var background = svg.append("g");
 var vis = svg.append("g")
     .attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
-
 var scale = 1;
 //    statusText = d3.select("#status");
 var directry = 'data/pen30/';
@@ -43,12 +42,10 @@ var box = [];
 // for experiment
 var myFirebaseRef = new Firebase("https://nodevis-experiment.firebaseio.com/"),
     now;
-
 function correct(d){
     console.log(d);
     now = new Date();
     myFirebaseRef.push({
-	    //	    author: "Firebase",
 	    task : "2",
 		result: "Correct",
 		answer: d,
@@ -59,7 +56,6 @@ function correct(d){
 function incorrect(d){
     now = new Date();
     myFirebaseRef.push({
-            //      author: "Firebase",
 	    task : "2",
 		result: "Incorrect",
 		answer: d,
@@ -70,7 +66,7 @@ function incorrect(d){
 
 
 var weight;
-var sent,befoword;
+var sent, selectword;
 d3.csv( directry + 'word-sentence.csv', function(dd) {
 	weight = dd;
     });
@@ -93,27 +89,15 @@ function draw(data, bounds) {
 	.attr("tag", function(d){ return d.tag })
 	.attr("sentence",function(d){ return tagbox[d.tag].sentence /*["sentence"]*/ })
 	.attr("transform", function(d) { return "translate(" + [tagbox[d.tag]["x"], tagbox[d.tag]["y"]] + ")"; })
-	//	.attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
 	.style({"font-size": function(d) { return d.size + "px"; }})
 	.style("cursor", "hand")
 	.text(function(d) { return d.name; })
 	.on("click", function(d){
-		if (befoword != undefined){
-		    tagbox[befoword.tag]["sentence"].forEach(function(dd){
-			    $("rect#" + dd).d3Click();
-			});
-		}
-		befoword = d;
-		svg.selectAll("text")
-		    .style({"fill": "black" /*"#95a5a6"*/, "opacity": 0.2});
-		d3.select(this)
-		    .style({"fill": "purple", "opacity": 1});
-                tagbox[d.tag]["sentence"].forEach(function(dd){
-			$("rect#" + dd).d3Click();
-		    });
+		selectword = d.tag;
 	    }
 	)
-	.on("click.2", arrow)
+	.on("click.2", phrase)
+	.on("click.3", arrow)
 	.on("mouseover", function(d){
 		tagbox[d.tag]["sentence"].forEach(function(dd){
 			d3.select("text#" + dd)
@@ -154,7 +138,7 @@ function draw(data, bounds) {
 	.attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
     //    $(multilist());
     start = new Date();
-    fta();        fta();   fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta();    fta();
+    fta(); fta(); fta(); fta(); fta(); fta(); fta(); fta(); fta(); fta(); fta(); fta();
     console.log(new Date() - start);
 }
 
@@ -191,19 +175,53 @@ $(function() {
 	    });
     });
 
-function arrow(d){
-    var node, anode, morpheme, startx, starty, endx, endy, end2x, end2y, marker, disx, disy;
-    node = tagbox[d.tag].sentence;
-    //make cooccurrence word
-    node.forEach(function(dd,i){
-	    senbox[dd].words.forEach(function(ddd){
-		    document.getElementsByName(ddd)[0].style.fill = "purple";
-		    document.getElementsByName(ddd)[0].style.opacity = 1;
-		});
+var boxnum;
+function phrase(d){
+    d3.selectAll("#UsePhrase").remove();
+    boxnum = tagbox[d.tag].sentence.length;
+    tagbox[d.tag].sentence.forEach(function(d,i){
+	    var id = "check"+i;
+	    var table = document.getElementById("table");
+	    var row = table.insertRow(1);// 行を追加
+	    var cell = row.insertCell(0);// 一つ目のセルを追加
+	    var checkbox = '<label class="checkbox ng-binding"> <input type="checkbox"  class="ng-pristine ng-valid" id = ' + id + ' name="' + d + '" checked="checked" onclick="arrow()" >';
+	    cell.setAttribute("class","phrase");
+	    cell.setAttribute("id","UsePhrase");
+	    cell.setAttribute("style","padding-left: 30px;");
+	    cell.innerHTML = checkbox + d + "</label>";
 	});
+}
+
+function hogege(){
+    console.log("hogege");
+}
+var check, node;
+function arrow(){
+
+    if (node != undefined){
+        node.forEach(function(dd){
+                $("rect#" + dd).d3Click();
+            });
+    }    
+    node = [];
+    var anode, morpheme, startx, starty, endx, endy, end2x, end2y, marker, disx, disy;
+    for (var i=0; i<=boxnum-1; i++){
+	check = document.getElementById("check"+i);
+	if (check.checked == true) {
+	    node.push(check.name);
+	}
+    }
+    node.forEach(function(dd){
+            $("rect#" + dd).d3Click();
+        });//*/
+
+
+
     //make arrow
     svg.selectAll("path").remove();
     svg.selectAll("defs").remove();
+    svg.selectAll("text")
+	.style({"fill": "black" , "opacity": 0.2});
     var line = d3.svg.line()
 	.x(function(d){ return d[0]; })
 	.y(function(d){ return d[1]; });
@@ -224,8 +242,8 @@ function arrow(d){
 		    stroke: 'none',
 		    fill: "black"
 		    });
-    startx = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.e;
-    starty = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.f;
+    startx = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.e;
+    starty = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.f;
     node.forEach(function(dd,i){
 	    upedge[senbox[dd].number].forEach(function(ddd){
 		    senbox[snumber[ddd]].words.forEach(function(d4){
@@ -233,8 +251,8 @@ function arrow(d){
 			    document.getElementsByName(d4)[0].style.fill = "red";
 			    document.getElementsByName(d4)[0].style.opacity = 1;
 			    //make edge
-			    startx = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.e;
-			    starty = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.f;
+			    startx = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.e;
+			    starty = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.f;
 			    endx = document.getElementsByName(d4)[0].transform.baseVal[0].matrix.e;
 			    endy = document.getElementsByName(d4)[0].transform.baseVal[0].matrix.f;
 			    disx = Math.abs(startx - endx);
@@ -250,11 +268,11 @@ function arrow(d){
 				    }
 				}else{// SがEより下
 				    if(startx > endx){// SがEより右
-                                        startx = startx - document.getElementsByName(d.tag)[0].getBBox().width / 2;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().width / 2 * disy / disx);
+                                        startx = startx - document.getElementsByName(selectword)[0].getBBox().width / 2;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().width / 2 * disy / disx);
                                     }else{// SがEより左
-                                        startx = startx + document.getElementsByName(d.tag)[0].getBBox().width / 2;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().width / 2 * disy / disx);
+                                        startx = startx + document.getElementsByName(selectword)[0].getBBox().width / 2;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().width / 2 * disy / disx);
                                     }
 				}
 			    }else{// 縦距離のほうが大きい
@@ -268,11 +286,11 @@ function arrow(d){
                                     }
                                 }else{// SがEより下
                                     if(startx > endx){
-                                        startx = startx - document.getElementsByName(d.tag)[0].getBBox().height / 2 * disx / disy;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().height / 2);
+                                        startx = startx - document.getElementsByName(selectword)[0].getBBox().height / 2 * disx / disy;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().height / 2);
                                     }else{
-                                        startx = startx + document.getElementsByName(d.tag)[0].getBBox().height / 2 * disx / disy;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().height / 2);
+                                        startx = startx + document.getElementsByName(selectword)[0].getBBox().height / 2 * disx / disy;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().height / 2);
                                     }
                                 }
 			    }
@@ -293,8 +311,8 @@ function arrow(d){
 			    document.getElementsByName(d4)[0].style.fill = "blue";
 			    document.getElementsByName(d4)[0].style.opacity = 1;
 			    //make edge
-			    startx = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.e;
-                            starty = document.getElementsByName(d.tag)[0].transform.baseVal[0].matrix.f;
+			    startx = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.e;
+                            starty = document.getElementsByName(selectword)[0].transform.baseVal[0].matrix.f;
                             endx = document.getElementsByName(d4)[0].transform.baseVal[0].matrix.e;
                             endy = document.getElementsByName(d4)[0].transform.baseVal[0].matrix.f;
 			    disx = Math.abs(startx - endx);
@@ -310,11 +328,11 @@ function arrow(d){
                                     }
                                 }else{// SがEより下
                                     if(startx > endx){// SがEより右
-                                        startx = startx - document.getElementsByName(d.tag)[0].getBBox().width / 2;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().width / 2 * disy / disx);
+                                        startx = startx - document.getElementsByName(selectword)[0].getBBox().width / 2;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().width / 2 * disy / disx);
                                     }else{// SがEより左
-                                        startx = startx + document.getElementsByName(d.tag)[0].getBBox().width / 2;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().width / 2 * disy / disx);
+                                        startx = startx + document.getElementsByName(selectword)[0].getBBox().width / 2;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().width / 2 * disy / disx);
                                     }
                                 }
                             }else{// 縦距離のほうが大きい
@@ -328,11 +346,11 @@ function arrow(d){
                                     }
                                 }else{// SがEより下
                                     if(startx > endx){
-                                        startx = startx - document.getElementsByName(d.tag)[0].getBBox().height / 2 * disx / disy;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().height / 2);
+                                        startx = startx - document.getElementsByName(selectword)[0].getBBox().height / 2 * disx / disy;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().height / 2);
                                     }else{
-                                        startx = startx + document.getElementsByName(d.tag)[0].getBBox().height / 2 * disx / disy;
-                                        starty = starty - (document.getElementsByName(d.tag)[0].getBBox().height / 2);
+                                        startx = startx + document.getElementsByName(selectword)[0].getBBox().height / 2 * disx / disy;
+                                        starty = starty - (document.getElementsByName(selectword)[0].getBBox().height / 2);
                                     }
                                 }
                             }
@@ -347,6 +365,13 @@ function arrow(d){
                         });
                 });
 	});
+    //make cooccurrence word
+    node.forEach(function(dd,i){
+            senbox[dd].words.forEach(function(ddd){
+                    document.getElementsByName(ddd)[0].style.fill = "purple";
+                    document.getElementsByName(ddd)[0].style.opacity = 1;
+                });
+        });
 }
 
 var cor_value,
